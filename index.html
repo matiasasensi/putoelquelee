@@ -9,7 +9,7 @@
 
   <!-- animation-mixer -->
   <script src="https://cdn.jsdelivr.net/npm/aframe-extras@6.1.1/dist/aframe-extras.min.js"></script>
-
+<script src="https://cdn.jsdelivr.net/npm/aframe-particle-system-component@1.0.0/dist/aframe-particle-system-component.min.js"></script>
   <!-- AR.js -->
   <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
 </head>
@@ -25,6 +25,9 @@
   </div>
 
   <a-scene embedded arjs="debugUIEnabled: false">
+    <a-assets>
+  <audio id="clickSound" src="sounds/efecto clip.mp3"></audio>
+</a-assets>
 
     <!-- Luz mejorada -->
     <a-entity light="type: ambient; intensity: 1.0"></a-entity>
@@ -37,8 +40,22 @@
         gltf-model="url(materiales/fakemogus.glb)"
         scale="0.5 0.5 0.5"
         rotation="0 180 0">
-      </a-entity>
+        sound="src: #clickSound">
 
+      </a-entity>
+ <a-entity
+        id="particles"
+        position="0 -0.25 0"
+        particle-system="
+          preset: dust;
+          particleCount: 250;
+          color: #FFD700;
+          velocityValue: 0 1 0;
+          velocitySpread: 0.4 0.6 0.4;
+          size: 0.1;
+          lifetime: 1;
+          enabled: false;">
+      </a-entity>
     </a-marker>
 
     <a-entity camera></a-entity>
@@ -62,7 +79,18 @@
         loop: "once",
         clampWhenFinished: true
       });
+       // SONIDO
+  model.components.sound.playSound();
+
+  // PARTÍCULAS
+  particles.setAttribute("particle-system", "enabled", true);
+  setTimeout(() => {
+    particles.setAttribute("particle-system", "enabled", false);
+  }, 500);
+
+      
     });
+    
   </script>
 
 </body>
