@@ -16,6 +16,10 @@
 </div>
     <a-scene embedded arjs>
       <a-entity light="type: directional; color: #FFF; intensity: 1" position="0 1 0"></a-entity>
+      <a-entity light="type: ambient; color: #FFF; intensity: 0.8"></a-entity>
+      <a-entity light="type: directional; color: #FFF; intensity: 0.3" position="-2 1 0"></a-entity>
+
+
      <a-marker preset="hiro" emitevents="true" id="marker">
 
   <a-entity
@@ -53,17 +57,14 @@ btn.addEventListener("click", () => {
   score++;
   scoreDisplay.innerText = score;
 
-  // Reiniciar animación cada vez
-  const mixer = model.components["animation-mixer"];
-  if (mixer) {
-    // Detener animación actual y reproducir desde el inicio
-    mixer.stop();
-    mixer.play();
-  }
-
-  // Opcional: si querés pasar de juego al llegar a 10
-  if (score >= 10) {
-    // setTimeout(() => { window.location.href = "guitar.html"; }, 2000);
+  // Esperar que el modelo esté cargado
+  if (model.components["animation-mixer"]) {
+    const mixer = model.components["animation-mixer"];
+    // Reinicia animación
+    mixer.stop();  
+    mixer.play();  
+  } else {
+    console.warn("Modelo aún no cargado o sin animaciones");
   }
 });
 </script>
