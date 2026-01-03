@@ -45,13 +45,7 @@
         sound="src:#clickSound">
       </a-entity>
 
-      <a-entity
-        id="particles"
-        position="0 -0.25 0"
-        particle-system="preset:dust; particleCount:200; color:#FFD700;
-                         velocityValue:0 1 0; velocitySpread:0.4 0.6 0.4;
-                         size:0.1; lifetime:1; enabled:false">
-      </a-entity>
+      
 
     </a-marker>
 
@@ -94,11 +88,7 @@
         sound.playSound();
       }
 
-      // ✨ Partículas
-      particles.setAttribute("particle-system", "enabled", true);
-      setTimeout(() => {
-        particles.setAttribute("particle-system", "enabled", false);
-      }, 500);
+      
     });
   </script>
 
