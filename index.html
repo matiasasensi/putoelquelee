@@ -2,19 +2,14 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>AR Game</title>
+  <title>AR.js Stable Animation</title>
 
-  <!-- A-Frame -->
   <script src="https://aframe.io/releases/1.3.0/aframe.min.js"></script>
-
-  <!-- Extras -->
   <script src="https://cdn.jsdelivr.net/npm/aframe-extras@6.1.1/dist/aframe-extras.min.js"></script>
-
-  <!-- AR.js -->
   <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
 
   <style>
-    body { margin:0; overflow:hidden; background:black; }
+    body { margin: 0; overflow: hidden; }
 
     #ui {
       position: fixed;
@@ -23,6 +18,8 @@
       transform: translateX(-50%);
       z-index: 10;
       text-align: center;
+      color: white;
+      font-family: sans-serif;
     }
 
     #countBtn {
@@ -34,102 +31,78 @@
       background-color: transparent;
       cursor: pointer;
     }
-
-    #videoOverlay {
-      position: fixed;
-      inset: 0;
-      background: black;
-      display: none;
-      z-index: 999;
-    }
-
-    #videoOverlay video {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-    }
   </style>
 </head>
 
 <body>
 
-  <!-- UI -->
-  <div id="ui">
-    <button id="countBtn"></button>
-    <p style="color:white;">Score: <span id="score">0</span>/10</p>
-  </div>
+<div id="ui">
+  <button id="countBtn"></button>
+  <p>Score: <span id="score">0</span></p>
+</div>
 
-  <!-- VIDEO FINAL -->
-  <div id="videoOverlay">
-    <video id="finalVideo" src="materiales/video.mp4" controls></video>
-  </div>
+<a-scene embedded arjs="debugUIEnabled:false">
 
-  <!-- AR -->
-  <a-scene embedded arjs="debugUIEnabled:false">
+  <a-assets>
+    <audio id="clickSound" src="materiales/click.mp3" preload="auto"></audio>
+    <a-asset-item id="mogusModel" src="materiales/fakemogus.glb"></a-asset-item>
+  </a-assets>
 
-    <a-assets>
-      <audio id="clickSound" src="materiales/click.mp3" preload="auto"></audio>
-      <a-asset-item id="mogusModel" src="materiales/fakemogus.glb"></a-asset-item>
-    </a-assets>
+  <a-marker preset="hiro" id="marker">
+    <a-entity
+      id="fakemogus"
+      gltf-model="#mogusModel"
+      scale="0.5 0.5 0.5"
+      rotation="0 0 90"
+      sound="src:#clickSound; volume:3">
+    </a-entity>
+  </a-marker>
 
-    <a-entity light="type: ambient; intensity: 1"></a-entity>
-    <a-entity light="type: directional; intensity: 1.2" position="1 2 1"></a-entity>
+  <a-entity camera></a-entity>
+</a-scene>
 
-    <a-marker preset="hiro">
-      <a-entity
-        id="fakemogus"
-        gltf-model="#mogusModel"
-        scale="0.5 0.5 0.5"
-        rotation="0 0 90"
-        animation-mixer="clip: take.001; loop: once; clampWhenFinished: true"
-        sound="src:#clickSound; volume: 3">
-      </a-entity>
-    </a-marker>
+<script>
+  let score = 0;
+  let markerVisible = false;
 
-    <a-entity camera></a-entity>
-  </a-scene>
+  const btn = document.getElementById("countBtn");
+  const scoreDisplay = document.getElementById("score");
+  const model = document.getElementById("fakemogus");
+  const marker = document.getElementById("marker");
 
-  <script>
-    let score = 0;
+  marker.addEventListener("markerFound", () => {
+    markerVisible = true;
+  });
 
-    const btn = document.getElementById("countBtn");
-    const scoreDisplay = document.getElementById("score");
-    const model = document.getElementById("fakemogus");
+  marker.addEventListener("markerLost", () => {
+    markerVisible = false;
+  });
 
-    const videoOverlay = document.getElementById("videoOverlay");
-    const finalVideo = document.getElementById("finalVideo");
-    const scene = document.querySelector("a-scene");
-    const ui = document.getElementById("ui");
+  btn.addEventListener("click", () => {
+    if (!markerVisible) return;
 
-    btn.addEventListener("click", () => {
+    score++;
+    scoreDisplay.textContent = score;
 
-      score++;
-      scoreDisplay.textContent = score;
+    // 🔥 RESET DURO DEL MIXER (esto arregla el bug)
+    model.removeAttribute("animation-mixer");
 
-      // === FIX REAL DE ANIMACIÓN ===
-      const mixer = model.components["animation-mixer"];
-      if (mixer) {
-        mixer.stopAllAction();
-        mixer.timeScale = 1;
-        mixer.playAction("take.001");
-      }
+    setTimeout(() => {
+      model.setAttribute("animation-mixer", {
+        clip: "*",
+        loop: "once",
+        clampWhenFinished: true
+      });
+    }, 0);
 
-      // Sonido
-      const sound = model.components.sound;
-      if (sound) {
-        sound.stopSound();
-        sound.playSound();
-      }
-
-      // VIDEO FINAL
-      if (score >= 10) {
-        ui.style.display = "none";
-        scene.style.display = "none";
-        videoOverlay.style.display = "block";
-        finalVideo.play();
-      }
-    });
-  </script>
+    // Sonido
+    const sound = model.components.sound;
+    if (sound) {
+      sound.stopSound();
+      sound.playSound();
+    }
+  });
+</script>
 
 </body>
 </html>
